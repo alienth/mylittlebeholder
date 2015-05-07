@@ -4,8 +4,8 @@ if ( ! state.playerActions ) {
 }
 
 on("chat:message", function(msg) {
-        if (msg.content.indexOf("{{title=Rage}} {{subheader=Beargen") > -1) {
-            beargenSmash();
+        if (msg.content.indexOf("{{classaction=") > -1) {
+            classAction(msg);
         }
         if (msg.content.indexOf("{{spell=1}}") > -1) {
             spellCast(msg);
@@ -85,26 +85,16 @@ function spellCast(msg) {
 }
 
 function useSpellSlot(name, spellLevel, castLevel) {
-    character = findObjs({
-        name: name,
-        _type: "character",
-    });
-
-    if (character.length < 1) {
-        log("Unable to find player who cast spell: " + name);
-    } else if (character.length > 1) {
-        log("Found too many players who cast spell: " + name);
-    } else {
-        log("Found player: " + character[0] + character[0].id);
-        character = character[0];
+    character = findCharByName(name);
+    if (character) {
         var normalSlotAttr = findAttrByName(character.id, "spell_slots_l" + castLevel);
         var warlockSlotAttr = findAttrByName(character.id, "warlock_spell_slots");
         var isWarlock = getAttrByName(character.id, "warlock_level")
         var slotAttr = undefined
-        if (warlockSlotAttr.length > 0 && isWarlock > 0) {
-            slotAttr = warlockSlotAttr[0];
-        } else if (normalSlotAttr.length > 0) {
-            slotAttr = normalSlotAttr[0];
+        if (warlockSlotAttr && isWarlock > 0) {
+            slotAttr = warlockSlotAttr;
+        } else if (normalSlotAttr) {
+            slotAttr = normalSlotAttr;
         }
         if (slotAttr) {
             current = slotAttr.get("current")
@@ -117,39 +107,92 @@ function useSpellSlot(name, spellLevel, castLevel) {
     }
 }
 
-function beargenSmash() {
-    log("beargen entered rage")
-    token = getObj("graphic", state.playerActions.tokenByPlayerName["Beargen Beastcoat"])
-    if (token) {
-        character = getObj("character", token.get("represents"))
-        var resourceAttr = findAttrByName(character.id, "classactionresource1")
-        if (resourceAttr.length > 0) {
-            resourceAttr = resourceAttr[0];
-            current = resourceAttr.get("current")
-            if (current < 1) {
-                wizardSays("Beargen, you lack the endurance necessary to rage again so soon.")
-            } else {
-                resourceAttr.set("current", current - 1);
-                var rageAttr = findAttrByName(character.id, "in_rage")
-                if (rageAttr.length > 0) {
-                    rageAttr[0].set("current", "1")
+
+function classAction(msg) {
+
+    var actionNum = 0;
+    var actionNumRe = /{{classaction=(\d+)}}/;
+    var actionNumCheck = actionNumRe.exec(msg.content);
+    if (actionNumCheck) {
+        actionNum = actionNumCheck[1];
+    }
+
+    var nameRe = /{{title=(.*?)}} {{subheader=(.*?)}}/;
+    var nameCheck = nameRe.exec(msg.content);
+
+    if (nameCheck) {
+        useClassAction(nameCheck[2], nameCheck[1], actionNum);
+    }
+
+}
+
+function useClassAction(charName, actionName, actionNum) {
+    character = findCharByName(charName);
+
+    if (character) {
+        var rechargeAttr = findAttrByName(character.id, "classactionrecharge" + actionNum);
+        if (! rechargeAttr) {
+            return;
+        } else if (rechargeAttr.get("current") === "None") {
+            return;
+        } else {
+            var resourceAttr = findAttrByName(character.id, "classactionresource" + actionNum);
+            if (resourceAttr) {
+                current = resourceAttr.get("current");
+                max = resourceAttr.get("max");
+                if (max > 0 && current < 1) {
+                    wizardSays(charName + ", you must take a " + rechargeAttr.get("current").toLowerCase() + " before you can do that.");
+                } else {
+                    resourceAttr.set("current", current - 1);
+                    if (actionName === "Rage") {
+                        var token = getObj("graphic", state.playerActions.tokenByPlayerName[charName]);
+                        if (token) {
+                            token.set("status_strong", true);
+                        }
+                        var rageAttr = findAttrByName(character.id, "in_rage");
+                        if (rageAttr) {
+                            rageAttr.set("current", "1");
+                        }
+                    };
                 }
-                token.set("status_strong", true)
             }
-
         }
-
     }
 }
+
 
 function wizardSays(msg) {
     sendChat("a far away wizard says", msg);
 };
 
 function findAttrByName(char_id, name) {
-    return findObjs({
+    attrs = findObjs({
         _type: "attribute",
         _characterid: char_id,
         name: name
     });
+
+    if (attrs.length < 1) {
+        return;
+    } else if (attrs.length === 1) {
+        return attrs[0];
+    } else {
+        log("Found multiple attrs in findAttrByName call");
+        return;
+    }
 };
+
+function findCharByName(name) {
+    character = findObjs({
+        name: name,
+        _type: "character",
+    });
+
+    if (character.length === 1) {
+        return(character[0]);
+    } else if (character.length > 1) {
+        log("Found too many players who cast spell: " + name);
+    } else {
+        log("Unable to find char: " + name);
+    }
+}
