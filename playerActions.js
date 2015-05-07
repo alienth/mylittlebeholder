@@ -98,7 +98,7 @@ function spellCast(msg) {
 
 function useSpellSlot(name, spellLevel, castLevel) {
     character = findCharByName(name);
-    if (character) {
+    if (character && character.get("controlledby")) {
         var normalSlotAttr = findAttrByName(character.id, "spell_slots_l" + castLevel);
         var warlockSlotAttr = findAttrByName(character.id, "warlock_spell_slots");
         var isWarlock = getAttrByName(character.id, "warlock_level")
@@ -141,7 +141,7 @@ function classAction(msg) {
 function useClassAction(charName, actionName, actionNum) {
     character = findCharByName(charName);
 
-    if (character) {
+    if (character && character.get("controlledby")) {
         var rechargeAttr = findAttrByName(character.id, "classactionrecharge" + actionNum);
         if (! rechargeAttr) {
             return;
@@ -227,7 +227,7 @@ function restCommand(msg) {
     }
     args = msg.content.split(/\s+/);
 
-    switch (args[1]) {
+    switch (args[1].toLowerCase()) {
         case 'long':
             rechargeSpells('long');
             rechargeActions('long');
@@ -242,7 +242,33 @@ function restCommand(msg) {
 }
 
 function rechargeSpells(type) {
-    chars = getPlayerCharacters();
+    _.each(getPlayerCharacters(), function(character) {
+
+        var isWarlock = getAttrByName(character.id, "warlock_level")
+
+        // Spell slots - non warlocks
+        if (type === "long") {
+            for (i = 1; i <= 9; i++) {
+                slotAttr = findAttrByName(character.id, "spell_slots_l" + i);
+                if (slotAttr) {
+                    max = slotAttr.get("max");
+                    if (max) {
+                        slotAttr.set("current", max);
+                    }
+                }
+            }
+        }
+
+        if (isWarlock > 0 && (type === "long" || type === "short")) {
+            wizardSays("/w " + character.get("name") + " The rest has renewed your mind. (Please manually reset your spell slots)");
+//            var slotsMaxFormula = getAttrByName(character.id, "warlock_spell_slots", "max");
+//            var slotsMax = 0;
+//            sendChat(character.id, slotsMaxFormula, function(ops) {
+//                slotsMax = ops[0];
+//            });
+//            log(slotsMax);
+        }
+    });
 }
 
 function rechargeActions(type) {
