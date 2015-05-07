@@ -143,8 +143,8 @@ function beargenSmash() {
 }
 
 function wizardSays(msg) {
-    sendChat("a far away wizard says", msg)
-}
+    sendChat("a far away wizard says", msg);
+};
 
 function findAttrByName(char_id, name) {
     return findObjs({
@@ -152,4 +152,4 @@ function findAttrByName(char_id, name) {
         _characterid: char_id,
         name: name
     });
-}
+};
