@@ -132,7 +132,7 @@ function beargenSmash() {
                 resourceAttr.set("current", current - 1);
                 var rageAttr = findAttrByName(character.id, "in_rage")
                 if (rageAttr.length > 0) {
-                    rageAttr[0].set("1")
+                    rageAttr[0].set("current", "1")
                 }
                 token.set("status_strong", true)
             }
