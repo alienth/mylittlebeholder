@@ -20,6 +20,15 @@ on("change:graphic:represents", function(obj) {
 });
 
 
+on("change:graphic:statusmarkers", function(obj, prev) {
+    if (obj.get("status_aura")) {
+        obj.set("light_radius", "20");
+        obj.set("light_otherplayers", true);
+    } else if (prev["statusmarkers"].indexOf("aura") > -1) {
+        obj.set("light_radius", "");
+    }
+});
+
 on("ready", function() {
     getPlayerTokens();
     //getCharacters();
