@@ -10,6 +10,9 @@ on("chat:message", function(msg) {
         if (msg.content.indexOf("{{spell=1}}") > -1) {
             spellCast(msg);
         }
+        if (msg.content.substr(0, 5) === "!rest") {
+            restCommand(msg);
+        }
 });
 
 on("change:graphic:represents", function(obj) {
@@ -204,4 +207,65 @@ function findCharByName(name) {
     } else {
         log("Unable to find char: " + name);
     }
+}
+
+function getPlayerCharacters() {
+    characters = filterObjs(function(obj) {
+        if (obj.get("type") === "character" && obj.get("controlledby")) {
+            return true;
+        } else {
+            return false;
+        }
+    });
+    return characters;
+}
+
+function restCommand(msg) {
+    if (msg.who !== "alienth (GM)") {
+        log("Non-gm tried to rest. Ignoring." + msg.who);
+        return;
+    }
+    args = msg.content.split(/\s+/);
+
+    switch (args[1]) {
+        case 'long':
+            rechargeSpells('long');
+            rechargeActions('long');
+            break;
+        case 'short':
+            rechargeSpells('short');
+            rechargeActions('short');
+            break;
+        default:
+            wizardSays("Usage: !rest (long|short)");
+    }
+}
+
+function rechargeSpells(type) {
+    chars = getPlayerCharacters();
+}
+
+function rechargeActions(type) {
+    _.each(getPlayerCharacters(), function(character) {
+        // The charsheet has 20 actions, at the moment
+        for (i = 1; i <= 20; i++) {
+            rechargeAttr = findAttrByName(character.id, "classactionrecharge" + i);
+            recharge = undefined;
+            if (rechargeAttr) {
+                recharge = rechargeAttr.get("current");
+            }
+            if (recharge && recharge.toLowerCase().indexOf(type.toLowerCase()) > -1) {
+                resourceAttr = findAttrByName(character.id, "classactionresource" + i);
+                current = max = undefined;
+                if (resourceAttr) {
+                    current = resourceAttr.get("current");
+                    max = resourceAttr.get("max");
+                }
+                if (max) {
+                    resourceAttr.set("current", max);
+                    log("Recharged resource " + i + " for player " + character.get("name"));
+                }
+            }
+        }
+    });
 }
