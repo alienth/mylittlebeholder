@@ -72,28 +72,28 @@ function spellCast(msg) {
         return;
     }
 
-    var spellLevel = 0
+    var spellLevel = 0;
     // This doesn't match for cantrips, and as such the level will remain 0
     var spellLevelRe = /subheaderright=.*? Level (\d+)/;
     var levelCheck = spellLevelRe.exec(msg.content);
     if (levelCheck) {
-        spellLevel = levelCheck[1]
+        spellLevel = levelCheck[1];
     }
 
-    var castLevel = spellLevel
+    var castLevel = spellLevel;
     if (msg.content.indexOf("**Cast at level:**") > -1) {
         var levelRe = /\*\*Cast at level:\*\* (\d+)/;
         var levelCheck = levelRe.exec(msg.content);
         if (levelCheck) {
-            castLevel = levelCheck[1]
+            castLevel = levelCheck[1];
         }
     }
 
-    var nameRe = /{{title=.*?}} {{subheader=(.*?)}}/
+    var nameRe = /{{title=.*?}} {{subheader=(.*?)}}/;
     var nameCheck = nameRe.exec(msg.content);
 
     if (nameCheck && spellLevel > 0) {
-        useSpellSlot(nameCheck[1], spellLevel, castLevel)
+        useSpellSlot(nameCheck[1], spellLevel, castLevel);
     }
 }
 
@@ -102,19 +102,19 @@ function useSpellSlot(name, spellLevel, castLevel) {
     if (character && character.get("controlledby")) {
         var normalSlotAttr = findAttrByName(character.id, "spell_slots_l" + castLevel);
         var warlockSlotAttr = findAttrByName(character.id, "warlock_spell_slots");
-        var isWarlock = getAttrByName(character.id, "warlock_level")
-        var slotAttr = undefined
+        var isWarlock = getAttrByName(character.id, "warlock_level");
+        var slotAttr = undefined;
         if (warlockSlotAttr && isWarlock > 0) {
             slotAttr = warlockSlotAttr;
         } else if (normalSlotAttr) {
             slotAttr = normalSlotAttr;
         }
         if (slotAttr) {
-            current = slotAttr.get("current")
+            current = slotAttr.get("current");
             if (current < 1) {
-                wizardSays(name + ", you lack the necessary spell slots to cast that.")
+                wizardSays(name + ", you lack the necessary spell slots to cast that.");
             }  else {
-                slotAttr.set("current", current - 1)
+                slotAttr.set("current", current - 1);
             }
         }
     }
