@@ -33,30 +33,31 @@ on("change:graphic:statusmarkers", function(obj, prev) {
 });
 
 on("ready", function() {
-    getPlayerTokens();
+    getCharacterTokens();
     //getCharacters();
 });
 
 on("change:campaign:playerpageid", function() {
-    getPlayerTokens();
+    getCharacterTokens();
 });
 
 on("add:character", function(obj) {
     //getCharacters(obj);
 });
 
-function getPlayerTokens() {
-    log("searching for player tokens");
-    state.playerActions.tokenByPlayerName = {}
-    state.playerActions.playerNameByToken = {}
+function getCharacterTokens() {
+    log("searching for character tokens");
+    var tokenByCharacterName = state.playerActions.tokenByCharacterName = {};
+    var characterNameByToken = state.playerActions.characterNameByToken = {};
     var tokens = findObjs({
         _pageid: Campaign().get("playerpageid"),
         _type: "graphic"});
-    _.each(tokens, function(obj) {
-        if(obj.get("represents") != "") {
-            player = getObj("character", obj.get("represents"));
-            state.playerActions.tokenByPlayerName[player.get("name")] = obj.id;
-            state.playerActions.playerNameByToken[obj.id] = player.get("name");
+    _.each(tokens, function(token) {
+        if(token.get("represents") != "") {
+            var character = getObj("character", token.get("represents"));
+            var name = character.get("name");
+            tokenByCharacterName[name] = [token.id];
+            characterNameByToken[token.id] = [name];
         }
     });
 }
@@ -158,7 +159,7 @@ function useClassAction(charName, actionName, actionNum) {
                 } else {
                     resourceAttr.set("current", current - 1);
                     if (actionName === "Rage") {
-                        var token = getObj("graphic", state.playerActions.tokenByPlayerName[charName]);
+                        var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
                         if (token) {
                             token.set("status_strong", true);
                         }
