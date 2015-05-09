@@ -69,7 +69,7 @@ function spellCast(msg) {
         return;
     }
     if (msg.content.indexOf("{{spellritual=1}}") &&
-        msg.content.indexOf("**Cast as ritual**: y") > -1) {
+        msg.content.indexOf("**Cast as ritual:** y") > -1) {
         return;
     }
 
