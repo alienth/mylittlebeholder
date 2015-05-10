@@ -163,11 +163,17 @@ function useClassAction(charName, actionName, actionNum) {
                         if (token) {
                             token.set("status_strong", true);
                         }
+                        // TODO: Create this attr if it doesn't exist.
                         var rageAttr = findAttrByName(character.id, "in_rage");
                         if (rageAttr) {
                             rageAttr.set("current", "1");
                         }
-                    };
+                    } else if (actionName === "Reckless Attack") {
+                        var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
+                        if (token) {
+                            token.set("status_back-pain", true);
+                        }
+                    }
                 }
             }
         }
