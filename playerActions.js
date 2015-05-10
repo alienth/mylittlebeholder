@@ -292,7 +292,8 @@ function rechargeActions(type) {
             if (rechargeAttr) {
                 recharge = rechargeAttr.get("current");
             }
-            if (recharge && recharge.toLowerCase().indexOf(type.toLowerCase()) > -1) {
+            // TODO: Clean this mess up
+            if (recharge && (recharge.toLowerCase().indexOf(type.toLowerCase()) > -1 || (type === "long" && recharge.toLowerCase().indexOf("short") > -1))) {
                 resourceAttr = findAttrByName(character.id, "classactionresource" + i);
                 current = max = undefined;
                 if (resourceAttr) {
