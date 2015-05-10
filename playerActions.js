@@ -262,13 +262,17 @@ function rechargeSpells(type) {
         }
 
         if (isWarlock > 0 && (type === "long" || type === "short")) {
-            wizardSays("/w " + character.get("name") + " The rest has renewed your mind. (Please manually reset your spell slots)");
-//            var slotsMaxFormula = getAttrByName(character.id, "warlock_spell_slots", "max");
-//            var slotsMax = 0;
-//            sendChat(character.id, slotsMaxFormula, function(ops) {
-//                slotsMax = ops[0];
-//            });
-//            log(slotsMax);
+            var charName = character.get("name");
+            var slotAttr = findAttrByName(character.id, "warlock_spell_slots");
+            var slotsMaxFormula = getAttrByName(character.id, "warlock_spell_slots", "max");
+            // Make the formula an inline roll so that we can gather its result via sendChat()
+            slotsMaxFormula = "[[" + slotsMaxFormula.replace(/@{warlock_level}/g, "@{" + character.get("name") + "|warlock_level}") + "]]";
+            sendChat(character.id, slotsMaxFormula, function(ops) {
+                var slotsMax = ops[0].inlinerolls["1"].results.total;
+                if (slotsMax > 0) {
+                    slotAttr.set("current", slotsMax);
+                }
+            });
         }
     });
 }
