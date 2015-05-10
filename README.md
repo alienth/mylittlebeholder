@@ -13,10 +13,12 @@
 
 ## Memoize getPlayerCharacters
 
-## Use processInlineRolls on rechargeSpells for Warlock & Sorc Points
+## ~~Use processInlineRolls on rechargeSpells for Warlock & Sorc Points~~
 
 ## Implement rechargeSpells
 
 ## Implement rechargeHP
 
 ## Add Reckless Attack status check
+
+## Append to tokenByChar/charByToken when a new char is added to the page.
