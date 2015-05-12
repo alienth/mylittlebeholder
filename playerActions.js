@@ -239,6 +239,8 @@ function restCommand(msg) {
         case 'long':
             rechargeSpells('long');
             rechargeActions('long');
+            rechargeHitDice();
+            //rechargeHP();
             break;
         case 'short':
             rechargeSpells('short');
@@ -307,4 +309,54 @@ function rechargeActions(type) {
             }
         }
     });
+}
+
+function rechargeHitDice() {
+    dieType = [ "d6", "d8", "d10", "d12" ];
+    _.each(getPlayerCharacters(), function(character) {
+        dieType.forEach(function(type) {
+            max = getMaxHitDice(character, type);
+            if (max > 0) {
+                restore = Math.floor(max/2);
+                attr = findAttrByName(character.id, "hd_" + type);
+                if (attr) {
+                    current = attr.get("current");
+                    if (current < max) {
+                        var newCurrent = Math.min(current + restore, max);
+                        attr.set("current", newCurrent);
+                    }
+                }
+            }
+        });
+    });
+}
+
+
+function getMaxHitDice(character, type) {
+    // var max = getAttrByName(characterID, "hd_" + type, "max");
+    // The formula is currently unfetchable from the character sheet
+    // (possibly due to the attr being duplicated for the NPC sheet)
+    // As such, we're reproducing the formula here.
+
+    // TODO: Get the custom classes in here, too
+    // Unfortunately they're formulas, so they'll need the sendChat treatment
+    var attrs = [ ];
+    if (type === "d6") {
+        attrs = [ "sorcerer_level", "wizard_level" ];
+    } else if (type === "d8") {
+        attrs = [ "bard_level", "cleric_level", "druid_level", "rogue_level", "monk_level", "warlock_level" ];
+    } else if (type === "d10") {
+        attrs = [ "fighter_level" , "paladin_level", "ranger_level" ];
+    } else if (type === "d12") {
+        attrs = [ "barbarian_level" ];
+    }
+
+    var total = 0;
+    for (i = 0; i < attrs.length; i++) {
+        count = getAttrByName(character.id, attrs[i]);
+        if (count) {
+            total += +count;
+        }
+    }
+    return total;
 }
