@@ -131,16 +131,20 @@ li {
 }
 
 input.sheet-tab-is-npc:checked ~ div .sheet-npc-version,
-input.sheet-tab-is-npc:not(:checked) ~ div .sheet-pc-version {
+input.sheet-tab-is-npc:not(:checked) ~ div .sheet-pc-version,
+input.sheet-tab-is-npc:checked ~ .sheet-npc-version,
+input.sheet-tab-is-npc:not(:checked) ~ .sheet-pc-version {
   display: block;
 }
 
 input.sheet-tab-is-npc:checked ~ div .sheet-npc-version-inline-block,
-input.sheet-tab-is-npc:not(:checked) ~ div .sheet-pc-version-inline-block {
+input.sheet-tab-is-npc:not(:checked) ~ div .sheet-pc-version-inline-block,
+input.sheet-tab-is-npc:checked ~ .sheet-npc-version-inline-block,
+input.sheet-tab-is-npc:not(:checked) ~ .sheet-pc-version-inline-block {
   display: inline-block;
 }
-
-input.sheet-tab-is-npc:checked ~ .sheet-tab-is-old-npc.sheet-npc-version-inline-block {
+input.sheet-tab-is-npc:checked ~ .sheet-tab-is-old-npc.sheet-npc-version-inline-block,
+input.sheet-tab-is-npc:checked ~ div .sheet-tab-is-old-npc.sheet-npc-version-inline-block {
   display: inline-block;
 }
 
@@ -411,26 +415,30 @@ select.sheet-select-no-arrow {
 }
 
 .sheet-skills-attribute-selector {
-  height: 12px;
-  width: 24px !important;
+  height: 9px;
+  width: 25px !important;
+  border-bottom: 0;
+  color: #909090;
+  position: relative;
+  z-index: 2;
+  background: transparent;
 }
 
 .sheet-skills-attribute-selector-wrapper {
   position: relative;
-  margin-left: 2px;
 }
 .sheet-skills-attribute-selector-wrapper:before,
 .sheet-skills-attribute-selector-wrapper:after {
   position: absolute;
   top: -2px;
+  color: #909090;
 }
 .sheet-skills-attribute-selector-wrapper:before {
   content: "(";
-  left: -4px;
 }
 .sheet-skills-attribute-selector-wrapper:after {
   content: ")";
-  right: -4px;
+  right: 1px;
 }
 
 input[type=number].sheet-no-spin::-webkit-outer-spin-button,
@@ -506,9 +514,6 @@ input[type=number].sheet-no-spin {
   border-bottom-left-radius: 3px;
   border-bottom-right-radius: 3px;
 }
-.sheet-speed {
-  height: 60px;
-}
 .sheet-speed .sheet-wrap-box-title {
   font-size: 75%;
 }
@@ -567,12 +572,13 @@ input[type=number].sheet-no-spin {
 input[type=number].sheet-initiative-bonus {
   font-size: 70%;
   padding: 0;
+  line-height: 100%;
 }
 
 .sheet-proficiency-bonus input[type=number],
 .sheet-exhaustion input[type=number] {
   margin-bottom: 0 !important;
-  padding: 2px;
+  padding: 0;
 }
 
 .sheet-exhaustion .sheet-wrap-box-title,
@@ -619,6 +625,10 @@ input[type=number].sheet-initiative-bonus {
 }
 .sheet-inspiration .sheet-checkbox-label [type="checkbox"]:checked + span::before {
   content: "Yes";
+}
+
+.sheet-death-save button[type=roll] {
+  margin: 0;
 }
 
 .sheet-death-save .sheet-checkbox-label [type="checkbox"] + span {
@@ -932,15 +942,23 @@ input.sheet-tab-is-npc:checked + span.sheet-tab-is-npc {
   display: none;
 }
 
+input[value=English]:checked ~ span span.sheet-english,
+input[value=German]:checked ~ span span.sheet-german,
+input[value=Spanish]:checked ~ span span.sheet-spanish,
 input[value=English]:checked ~ div span.sheet-english,
 input[value=German]:checked ~ div span.sheet-german,
 input[value=Spanish]:checked ~ div span.sheet-spanish {
   display: inline;
 }
 
+input[value=English]:checked ~ span div.sheet-english,
+input[value=German]:checked ~ span div.sheet-german,
+input[value=Spanish]:checked ~ span div.sheet-spanish,
 input[value=English]:checked ~ div div.sheet-english,
 input[value=German]:checked ~ div div.sheet-german,
-input[value=Spanish]:checked ~ div div.sheet-spanish {
+input[value=Spanish]:checked ~ div div.sheet-spanish,
+
+{
   display: block;
 }
 
@@ -992,7 +1010,7 @@ span.sheet-tab-is-old-npc::before {
 span.sheet-tab-is-old-npc {
   font-size: 9px !important;
   background-color: #93537c;
-  margin-left: 120px;
+  margin-left: -120px;
 }
 
 input.sheet-tab-is-old-npc:checked + span.sheet-tab-is-old-npc {
@@ -1069,10 +1087,10 @@ span.sheet-tab-page-class {
 }
 input.sheet-tab-page-armor,
 span.sheet-tab-page-armor {
-  width: 50px;
+  width: 56px;
 }
 span.sheet-tab-page-armor {
-  margin-left: -54px;
+  margin-left: -60px;
 }
 input.sheet-tab-page-settings,
 span.sheet-tab-page-settings {
@@ -1317,10 +1335,10 @@ span[class*="sheet-tab-spellbook-filter"] {
 }
 input.sheet-tab-spellbook-filter-prepared,
 span.sheet-tab-spellbook-filter-prepared {
-  width: 88px;
+  width: 103px;
 }
 span.sheet-tab-spellbook-filter-prepared {
-  margin-left: -88px;
+  margin-left: -103px;
 }
 input.sheet-tab-spellbook-filter-ritual,
 span.sheet-tab-spellbook-filter-ritual {
@@ -1719,7 +1737,7 @@ button, input, select, textarea,
 .sheet-small-label input[type=number],
 .sheet-small-label select {
   padding: 0;
-  font-size: 81%;
+  font-size: 8px;
   line-height: 100%;
 }
 .sheet-small-label select {
@@ -1973,18 +1991,18 @@ input.sheet-pseudo-disabled{
 }
 
 input[disabled].sheet-passive-skill-score {
-  background-color: #F2FCFF;
+  background-color: #E7F9FF;
   cursor: not-allowed;
   -moz-appearance: textfield;
 }
 
+.sheet-skills input[disabled].sheet-passive-skill-score {
+  font-size: 11px;
+}
 
 select {
   font-size: 90%;
   padding-right: 0;
-}
-input {
-  font-size: 100%;
 }
 
 .sheet-important-text {
