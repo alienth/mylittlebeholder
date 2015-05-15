@@ -317,7 +317,7 @@ function rechargeHitDice() {
                 restore = Math.floor(max/2);
                 attr = findAttrByName(character.id, "hd_" + type);
                 if (attr) {
-                    current = attr.get("current");
+                    current = +attr.get("current");
                     if (current < max) {
                         var newCurrent = Math.min(current + restore, max);
                         attr.set("current", newCurrent);
