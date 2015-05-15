@@ -171,7 +171,7 @@ function useClassAction(charName, actionName, actionNum) {
                     } else if (actionName === "Reckless Attack") {
                         var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
                         if (token) {
-                            token.set("status_back-pain", true);
+                            token.set("status_archery-target", true);
                         }
                     }
                 }
