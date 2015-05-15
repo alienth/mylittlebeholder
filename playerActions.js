@@ -81,12 +81,10 @@ function spellCast(msg) {
     }
 
     var castLevel = spellLevel;
-    if (msg.content.indexOf("**Cast at level:**") > -1) {
-        var levelRe = /\*\*Cast at level:\*\* (\d+)/;
-        var levelCheck = levelRe.exec(msg.content);
-        if (levelCheck) {
-            castLevel = levelCheck[1];
-        }
+    var levelRe = /{{spellcastlvl=(\d+)}}/;
+    var levelCheck = levelRe.exec(msg.content);
+    if (levelCheck) {
+        castLevel = levelCheck[1];
     }
 
     var nameRe = /{{character_name=(.*?)}}/;
