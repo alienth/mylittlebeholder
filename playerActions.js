@@ -3,6 +3,11 @@ if ( ! state.playerActions ) {
     state.playerActions = {}
 }
 
+function debugLog(content) {
+    var debug = 1;
+    if (debug) sendChat("api", "/w gm " + content);
+}
+
 on("chat:message", function(msg) {
         if (msg.content.indexOf("{{classaction=") > -1) {
             classAction(msg);
@@ -30,8 +35,10 @@ on("change:graphic:statusmarkers", function(obj, prev) {
     if (obj.get("status_aura")) {
         obj.set("light_radius", "20");
         obj.set("light_otherplayers", true);
+        debugLog("adding light");
     } else if (prev["statusmarkers"].indexOf("aura") > -1) {
         obj.set("light_radius", "");
+        debugLog("removing light");
     }
 });
 
@@ -114,6 +121,7 @@ function useSpellSlot(name, spellLevel, castLevel) {
             if (current < 1) {
                 wizardSays(name + ", you lack the necessary spell slots to cast that.");
             }  else {
+                debugLog("decrementing " + slotAttr.get("name") + " for " + name);
                 slotAttr.set("current", current - 1);
             }
         }
@@ -156,19 +164,23 @@ function useClassAction(charName, actionNum) {
                     wizardSays(charName + ", you must take a " + rechargeAttr.get("current").toLowerCase() + " before you can do that.");
                 } else {
                     resourceAttr.set("current", current - 1);
+                    debugLog("decrementing " + resourceAttr.get("name") + " for " + charName);
                     if (actionName === "Rage") {
                         var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
                         if (token) {
                             token.set("status_strong", true);
+                            debugLog("setting status_strong on " + charName);
                         }
                         // TODO: Create this attr if it doesn't exist.
                         var rageAttr = findAttrByName(character.id, "in_rage");
                         if (rageAttr) {
+                            debugLog("setting in_rage on " + charName);
                             rageAttr.set("current", "1");
                         }
                     } else if (actionName === "Reckless Attack") {
                         var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
                         if (token) {
+                            debugLog("setting status_archery-target on " + charName);
                             token.set("status_archery-target", true);
                         }
                     }
@@ -262,6 +274,7 @@ function rechargeSpells(type) {
                     max = slotAttr.get("max");
                     if (max) {
                         slotAttr.set("current", max);
+                        debugLog("recharing " + slotAttr.get("name") + " for " + charName);
                     }
                 }
             }
@@ -276,6 +289,7 @@ function rechargeSpells(type) {
             sendChat(character.id, slotsMaxFormula, function(ops) {
                 var slotsMax = ops[0].inlinerolls["1"].results.total;
                 if (slotsMax > 0) {
+                    debugLog("recharing " + slotAttr.get("name") + " for " + charName);
                     slotAttr.set("current", slotsMax);
                 }
             });
@@ -302,7 +316,7 @@ function rechargeActions(type) {
                 }
                 if (max) {
                     resourceAttr.set("current", max);
-                    log("Recharged resource " + i + " for player " + character.get("name"));
+                    debugLog("Recharged class action resource " + i + " for player " + character.get("name"));
                 }
             }
         }
@@ -322,6 +336,7 @@ function rechargeHitDice() {
                     if (current < max) {
                         var newCurrent = Math.min(current + restore, max);
                         attr.set("current", newCurrent);
+                        debugLog("Recharged hit dice " + type + " for " + character.get("name"));
                     }
                 }
             }
@@ -354,6 +369,8 @@ function spendHitDice(msg) {
                     var restoreHP = Math.min(currentHP + dieRoll, maxHP);
                     hpAttr.set("current", restoreHP);
                     diceAttr.set("current", --currentDice);
+                    debugLog("Healing " + charName + " to " + restoreHP);
+                    debugLog("Decremented die " + diceAttr.get("name"));
                 } else {
                     wizardSays(charName + ", your hit dice are already exhausted.");
                 }
