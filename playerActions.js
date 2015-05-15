@@ -87,11 +87,10 @@ function spellCast(msg) {
         castLevel = levelCheck[1];
     }
 
-    var nameRe = /{{character_name=(.*?)}}/;
-    var nameCheck = nameRe.exec(msg.content);
+    var charName = charNameFromRoll(msg);
 
-    if (nameCheck && spellLevel > 0) {
-        useSpellSlot(nameCheck[1], spellLevel, castLevel);
+    if (charName && spellLevel > 0) {
+        useSpellSlot(charName, spellLevel, castLevel);
     }
 }
 
@@ -128,11 +127,10 @@ function classAction(msg) {
         actionNum = actionNumCheck[1];
     }
 
-    var nameRe = /{{character_name=(.*?)}}/;
-    var nameCheck = nameRe.exec(msg.content);
+    var charName = charNameFromRoll(msg);
 
-    if (nameCheck) {
-        useClassAction(nameCheck[1], actionNum);
+    if (charName && actionNum) {
+        useClassAction(charName, actionNum);
     }
 }
 
@@ -356,4 +354,13 @@ function getMaxHitDice(character, type) {
         }
     }
     return total;
+}
+
+function charNameFromRoll (msg) {
+    var nameRe = /{{character_name=(.*?)}}/;
+    var nameCheck = nameRe.exec(msg.content);
+
+    if (nameCheck) {
+        return nameCheck[1];
+    }
 }
