@@ -74,7 +74,7 @@ function spellCast(msg) {
 
     var spellLevel = 0;
     // This doesn't match for cantrips, and as such the level will remain 0
-    var spellLevelRe = /subheaderright=.*? Level (\d+)/;
+    var spellLevelRe = /{{spellfriendlylevel=Level (\d+)}}/;
     var levelCheck = spellLevelRe.exec(msg.content);
     if (levelCheck) {
         spellLevel = levelCheck[1];
