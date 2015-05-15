@@ -90,7 +90,7 @@ function spellCast(msg) {
         }
     }
 
-    var nameRe = /{{title=.*?}} {{subheader=(.*?)}}/;
+    var nameRe = /{{character_name=(.*?)}}/;
     var nameCheck = nameRe.exec(msg.content);
 
     if (nameCheck && spellLevel > 0) {
@@ -131,20 +131,20 @@ function classAction(msg) {
         actionNum = actionNumCheck[1];
     }
 
-    var nameRe = /{{title=(.*?)}} {{subheader=(.*?)}}/;
+    var nameRe = /{{character_name=(.*?)}}/;
     var nameCheck = nameRe.exec(msg.content);
 
     if (nameCheck) {
-        useClassAction(nameCheck[2], nameCheck[1], actionNum);
+        useClassAction(nameCheck[1], actionNum);
     }
-
 }
 
-function useClassAction(charName, actionName, actionNum) {
-    character = findCharByName(charName);
+function useClassAction(charName, actionNum) {
+    var character = findCharByName(charName);
 
     if (character && character.get("controlledby")) {
         var rechargeAttr = findAttrByName(character.id, "classactionrecharge" + actionNum);
+        var actionName = getAttrByName(character.id, "classactionname" + actionNum, "current");
         if (! rechargeAttr) {
             return;
         } else if (rechargeAttr.get("current") === "None") {
