@@ -10,6 +10,9 @@ on("chat:message", function(msg) {
         if (msg.content.indexOf("{{spell=1}}") > -1) {
             spellCast(msg);
         }
+        if (msg.content.indexOf("{{title=Spending Hit Dice}}")) {
+            spendHitDice(msg);
+        }
         if (msg.content.substr(0, 5) === "!rest") {
             restCommand(msg);
         }
@@ -326,6 +329,39 @@ function rechargeHitDice() {
     });
 }
 
+function spendHitDice(msg) {
+    var hitDiceRe = /{{title=Spending Hit Dice}} {{subheader=(.*?)}}/;
+    var hdCheck = hitDiceRe.exec(msg.content);
+    if (hdCheck) {
+        var type = hdCheck[1];
+        var charName = charNameFromRoll(msg);
+        var character = findCharByName(charName);
+
+        if (character) {
+            var max = getMaxHitDice(character, type);
+            var diceAttr = findAttrByName(character.id, "hd_" + type);
+            var hpAttr = findAttrByName(character.id, "HP");
+            var dieRoll = msg.inlinerolls[1].results.total;
+            if (max > 0 && diceAttr && hpAttr) {
+                currentDice = +diceAttr.get("current");
+                currentHP = +hpAttr.get("current");
+                maxHP = +hpAttr.get("max");
+                if (maxHP == currentHP) {
+                    wizardSays(charName + ", you're already at full health.");
+                    return;
+                }
+                if (currentDice > 0) {
+                    var restoreHP = Math.min(currentHP + dieRoll, maxHP);
+                    hpAttr.set("current", restoreHP);
+                    diceAttr.set("current", --currentDice);
+                } else {
+                    wizardSays(charName + ", your hit dice are already exhausted.");
+                }
+            }
+        }
+    }
+
+}
 
 function getMaxHitDice(character, type) {
     // var max = getAttrByName(characterID, "hd_" + type, "max");
