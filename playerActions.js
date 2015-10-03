@@ -287,7 +287,7 @@ function rechargeSpells(type) {
             // Make the formula an inline roll so that we can gather its result via sendChat()
             slotsMaxFormula = "[[" + slotsMaxFormula.replace(/@{warlock_level}/g, "@{" + character.get("name") + "|warlock_level}") + "]]";
             sendChat(character.id, slotsMaxFormula, function(ops) {
-                var slotsMax = ops[0].inlinerolls["1"].results.total;
+                var slotsMax = ops[0].inlinerolls["0"].results.total;
                 if (slotsMax > 0) {
                     debugLog("recharing " + slotAttr.get("name") + " for " + charName);
                     slotAttr.set("current", slotsMax);
