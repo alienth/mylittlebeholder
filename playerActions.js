@@ -91,7 +91,7 @@ function spellCast(msg) {
     }
 
     var castLevel = spellLevel;
-    var levelRe = /{{Spell Level=(\d+)}}/;
+    var levelRe = /{{spell_cast_as_level=(\d+)}}/;
     var levelCheck = levelRe.exec(msg.content);
     if (levelCheck) {
         castLevel = levelCheck[1];
