@@ -42,6 +42,16 @@ on("change:graphic:statusmarkers", function(obj, prev) {
     }
 });
 
+on("change:attribute:current", function(obj, prev) {
+    if(obj.get("name") != "HP") return;
+    var character = getObj("character", obj.get("_characterid"));
+    var oldValue = prev["current"];
+    var newValue = obj.get("current");
+    if (newValue < oldValue && character.get("name") === "Beargen Beastcoat") {
+        debugLog("ATTENTION! Beargen just took damage. If it was by a hostile, have him make a DC 15 Wis saving throw or he goes berserk!");
+    }
+});
+
 on("ready", function() {
     getCharacterTokens();
     //getCharacters();
