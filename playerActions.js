@@ -384,6 +384,7 @@ function restCommand(msg) {
             rechargeActions('long');
             rechargeHitDice();
             //rechargeHP();
+            debugLog("Tell everyone to restore all lost HP.");
             break;
         case 'short':
             rechargeSpells('short');
