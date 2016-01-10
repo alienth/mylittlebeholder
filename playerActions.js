@@ -154,48 +154,119 @@ function classAction(msg) {
     var charName = charNameFromRoll(msg);
 
     if (charName && actionNum) {
-        useClassAction(charName, actionNum);
+        useClassAction(charName, actionNum, msg);
     }
 }
 
-function useClassAction(charName, actionNum) {
+function useClassAction(charName, actionNum, msg) {
     var character = findCharByName(charName);
+    if (!(character && character.get("controlledby"))) {
+        return
+    }
 
-    if (character && character.get("controlledby")) {
-        var rechargeAttr = findAttrByName(character.id, "classactionrecharge" + actionNum);
-        var actionName = getAttrByName(character.id, "classactionname" + actionNum, "current");
-        if (! rechargeAttr) {
+    var sorcPointActions = {
+        "Careful Spell": 1,
+        "Distant Spell": 1,
+        "Empowered Spell": 1,
+        "Extend Spell": 1,
+        "Heightened Spell": 3,
+        "Quickened Spell": 2,
+        "Subtle Spell": 1,
+        "Twinned Spell": undefined,
+        "Create Spell Slot": undefined
+    }
+
+    var createSpellSlotCost = {
+        1: 2,
+        2: 3,
+        3: 5,
+        4: 6,
+        5: 7
+    }
+
+    var rechargeAttr = findAttrByName(character.id, "classactionrecharge" + actionNum);
+    var actionName = getAttrByName(character.id, "classactionname" + actionNum, "current");
+
+    // Sorc point stuff
+    if (sorcPointActions.hasOwnProperty(actionName)) {
+        var spAttr = findAttrByName(character.id, "sorcery_points");
+        var spCurrent = spAttr.get("current");
+        cost = sorcPointActions[actionName];
+
+        if (actionName == "Create Spell Slot") {
+            var spellSlotLevel = msg.inlinerolls["0"].results.total;
+            if (spellSlotLevel) {
+                cost = createSpellSlotCost[spellSlotLevel];
+                if (cost > spCurrent) {
+                    wizardSays(charName + ", you lack the necessary sorcery points to use that.");
+                    return;
+                }
+                slotAttr = findAttrByName(character.id, "spell_slots_l" + spellSlotLevel);
+                if (slotAttr) {
+                    current = slotAttr.get("current");
+                    max = slotAttr.get("max");
+                    if (max && current >= max) {
+                        wizardSays(charName + ", you are already at the maximum number of level " + spellSlotLevel + " spell slots.");
+                        return;
+                    }
+                    if (current) {
+                        // Increment spell slots
+                        slotAttr.set("current", +current + 1);
+                        debugLog("incrementing " + slotAttr.get("name") + " for " + charName);
+
+                        // Decrement sorc points
+                        spAttr.set("current", +spCurrent - +cost);
+                        debugLog("decrementing " + spAttr.get("name") + " for " + charName + " by " + cost);
+                    }
+                }
+            }
             return;
-        } else if (rechargeAttr.get("current") === "None") {
+        }
+        if (cost === undefined) {
+            debugLog("ATTENTION! " + charName + " has used an action with an undefined sorc point cost. Have them manually decrement.");
             return;
-        } else {
-            var resourceAttr = findAttrByName(character.id, "classactionresource" + actionNum);
-            if (resourceAttr) {
-                current = resourceAttr.get("current");
-                max = resourceAttr.get("max");
-                if (max > 0 && current < 1) {
-                    wizardSays(charName + ", you must take a " + rechargeAttr.get("current").toLowerCase() + " before you can do that.");
-                } else {
-                    resourceAttr.set("current", current - 1);
-                    debugLog("decrementing " + resourceAttr.get("name") + " for " + charName);
-                    if (actionName === "Rage") {
-                        var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
-                        if (token) {
-                            token.set("status_strong", true);
-                            debugLog("setting status_strong on " + charName);
-                        }
-                        // TODO: Create this attr if it doesn't exist.
-                        var rageAttr = findAttrByName(character.id, "in_rage");
-                        if (rageAttr) {
-                            debugLog("setting in_rage on " + charName);
-                            rageAttr.set("current", "1");
-                        }
-                    } else if (actionName === "Reckless Attack") {
-                        var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
-                        if (token) {
-                            debugLog("setting status_archery-target on " + charName);
-                            token.set("status_archery-target", true);
-                        }
+        } else if (cost > +spCurrent) {
+            wizardSays(charName + ", you lack the necessary sorcery points to use that.");
+            return;
+        }
+
+        spAttr.set("current", spCurrent - cost);
+        debugLog("decrementing " + spAttr.get("name") + " for " + charName + " by " + cost);
+        return;
+    }
+
+    // Class actions which use a local resource are below
+    if (! rechargeAttr) {
+        return;
+    } else if (rechargeAttr.get("current") === "None") {
+        return;
+    } else {
+        var resourceAttr = findAttrByName(character.id, "classactionresource" + actionNum);
+        if (resourceAttr) {
+            current = resourceAttr.get("current");
+            max = resourceAttr.get("max");
+            if (max > 0 && current < 1) {
+                wizardSays(charName + ", you must take a " + rechargeAttr.get("current").toLowerCase() + " before you can do that.");
+            } else {
+                resourceAttr.set("current", current - 1);
+                debugLog("decrementing " + resourceAttr.get("name") + " for " + charName);
+                if (actionName === "Rage") {
+                    var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
+                    if (token) {
+                        token.set("status_strong", true);
+                        debugLog("setting status_strong on " + charName);
+                    }
+                    // TODO: Create this attr if it doesn't exist.
+                    var rageAttr = findAttrByName(character.id, "in_rage");
+                    if (rageAttr) {
+                        debugLog("setting in_rage on " + charName);
+                        rageAttr.set("current", "1");
+                    }
+                } else if (actionName === "Reckless Attack") {
+                    var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
+                    if (token) {
+                        debugLog("setting status_archery-target on " + charName);
+                        token.set("status_archery-target", true);
                     }
                 }
             }
