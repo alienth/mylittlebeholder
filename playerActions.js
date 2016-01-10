@@ -260,6 +260,15 @@ function useClassAction(charName, actionNum, msg) {
         return;
     }
 
+    if (actionName === "Reckless Attack") {
+        var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
+        if (token) {
+            debugLog("setting status_archery-target on " + charName);
+            token.set("status_archery-target", true);
+        }
+        return;
+    }
+
     // Class actions which use a local resource are below
     if (! rechargeAttr) {
         return;
@@ -284,12 +293,6 @@ function useClassAction(charName, actionNum, msg) {
                     if (rageAttr) {
                         debugLog("setting in_rage on " + charName);
                         rageAttr.set("current", "1");
-                    }
-                } else if (actionName === "Reckless Attack") {
-                    var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
-                    if (token) {
-                        debugLog("setting status_archery-target on " + charName);
-                        token.set("status_archery-target", true);
                     }
                 } else if (actionName === "Rod of the Pact Keeper") {
                     var rodRe = /warlock spell slot/g;
