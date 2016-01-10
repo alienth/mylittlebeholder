@@ -489,7 +489,7 @@ function spendHitDice(msg) {
             var max = getMaxHitDice(character, type);
             var diceAttr = findAttrByName(character.id, "hd_" + type);
             var hpAttr = findAttrByName(character.id, "HP");
-            var dieRoll = msg.inlinerolls["0"].results.total;
+            var dieRoll = msg.inlinerolls["1"].results.total;
             if (max > 0 && diceAttr && hpAttr) {
                 currentDice = +diceAttr.get("current");
                 currentHP = +hpAttr.get("current");
