@@ -110,6 +110,9 @@ function spellCast(msg) {
     var charName = charNameFromRoll(msg);
 
     if (charName && spellLevel > 0) {
+        if (charName === "Dyrbaet") {
+            debugLog("ATTENTION! Dyrbaet just cast a lvl " + spellLevel + " spell. Have her roll 1d20 for Wild Magic chance.");
+        }
         useSpellSlot(charName, spellLevel, castLevel);
     }
 }
