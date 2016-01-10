@@ -176,6 +176,13 @@ function useClassAction(charName, actionNum, msg) {
         "Create Spell Slot": undefined
     }
 
+    var kiActions = {
+        "flurry of blows": 1,
+        "patient defense": 1,
+        "step of the wind": 1,
+        "fist of unbroken air": undefined
+    }
+
     var createSpellSlotCost = {
         1: 2,
         2: 3,
@@ -232,6 +239,24 @@ function useClassAction(charName, actionNum, msg) {
 
         spAttr.set("current", spCurrent - cost);
         debugLog("decrementing " + spAttr.get("name") + " for " + charName + " by " + cost);
+        return;
+    }
+
+    // Ki stuff
+    if (kiActions.hasOwnProperty(actionName.toLowerCase())) {
+        var kiAttr = findAttrByName(character.id, "classactionresource20"); // hardcoded for Hunter - FIXME
+        var kiCurrent = kiAttr.get("current");
+        cost = kiActions[actionName.toLowerCase()];
+        if (cost === undefined) {
+            debugLog("ATTENTION! " + charName + " has used an action with an undefined ki cost. Have them manually decrement.");
+            return;
+        } else if (cost > +kiCurrent) {
+            wizardSays(charName + ", you lack the necessary ki to use that.");
+            return;
+        }
+
+        kiAttr.set("current", kiCurrent - cost);
+        debugLog("decrementing " + kiAttr.get("name") + " for " + charName + " by " + cost);
         return;
     }
 
