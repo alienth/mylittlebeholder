@@ -248,8 +248,6 @@ function useClassAction(charName, actionNum, msg) {
             if (max > 0 && current < 1) {
                 wizardSays(charName + ", you must take a " + rechargeAttr.get("current").toLowerCase() + " before you can do that.");
             } else {
-                resourceAttr.set("current", current - 1);
-                debugLog("decrementing " + resourceAttr.get("name") + " for " + charName);
                 if (actionName === "Rage") {
                     var token = getObj("graphic", state.playerActions.tokenByCharacterName[charName]);
                     if (token) {
@@ -268,7 +266,33 @@ function useClassAction(charName, actionNum, msg) {
                         debugLog("setting status_archery-target on " + charName);
                         token.set("status_archery-target", true);
                     }
+                } else if (actionName === "Rod of the Pact Keeper") {
+                    var rodRe = /warlock spell slot/g;
+                    var rodCheck = rodRe.exec(msg.content);
+                    if (rodCheck) {
+                        var slotAttr = findAttrByName(character.id, "warlock_spell_slots");
+                        var slotCurrent = slotAttr.get("current");
+                        var slotsMaxFormula = getAttrByName(character.id, "warlock_spell_slots", "max");
+                        // Make the formula an inline roll so that we can gather its result via sendChat()
+                        slotsMaxFormula = "[[" + slotsMaxFormula.replace(/@{warlock_level}/g, "@{" + character.get("name") + "|warlock_level}") + "]]";
+                        sendChat(character.id, slotsMaxFormula, function(ops) {
+                            slotsMax = ops[0].inlinerolls["0"].results.total;
+                            if (slotsMax > 0) {
+                                if (+slotCurrent >= slotsMax) {
+                                    wizardSays(charName + ", you already have the maximum number of warlock spell slots.");
+                                    return;
+                                }
+                                debugLog("incrementing " + slotAttr.get("name") + " for " + charName);
+                                slotAttr.set("current", +slotCurrent + 1);
+                                resourceAttr.set("current", current - 1);
+                                debugLog("decrementing " + resourceAttr.get("name") + " for " + charName);
+                            }
+                        });
+                        return; // we decrement in the sendChat calbac, so dont want to have the final decrement run - FIXME
+                    }
                 }
+                resourceAttr.set("current", current - 1);
+                debugLog("decrementing " + resourceAttr.get("name") + " for " + charName);
             }
         }
     }
