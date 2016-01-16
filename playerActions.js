@@ -75,9 +75,11 @@ function getCharacterTokens() {
     _.each(tokens, function(token) {
         if(token.get("represents") != "") {
             var character = getObj("character", token.get("represents"));
-            var name = character.get("name");
-            tokenByCharacterName[name] = [token.id];
-            characterNameByToken[token.id] = [name];
+            if (character) {
+                var name = character.get("name");
+                tokenByCharacterName[name] = [token.id];
+                characterNameByToken[token.id] = [name];
+            }
         }
     });
 }
