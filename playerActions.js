@@ -182,6 +182,7 @@ function useClassAction(charName, actionNum, msg) {
         "flurry of blows": 1,
         "patient defense": 1,
         "step of the wind": 1,
+        "water whip": undefined,
         "fist of unbroken air": undefined
     }
 
