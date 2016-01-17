@@ -115,6 +115,15 @@ function spellCast(msg) {
         if (charName === "Dyrbaet") {
             debugLog("ATTENTION! Dyrbaet just cast a lvl " + spellLevel + " spell. Have her roll 1d20 for Wild Magic chance.");
         }
+        var titleRe = /{{title=(.*?)}}/;
+        var titleCheck = titleRe.exec(msg.content);
+        if (titleCheck) {
+            if (titleCheck[1] === "Sweeping Cinder Strike") {
+                character = findCharByName(charName);
+                useKi(character, 1);
+                return;
+            }
+        }
         useSpellSlot(charName, spellLevel, castLevel);
     }
 }
@@ -141,6 +150,23 @@ function useSpellSlot(name, spellLevel, castLevel) {
             }
         }
     }
+}
+
+function useKi(character, cost) {
+    var kiAttr = findAttrByName(character.id, "classactionresource20"); // hardcoded for Hunter - FIXME
+    var kiCurrent = kiAttr.get("current");
+    var charName = character.get("name");
+    if (cost === undefined) {
+        debugLog("ATTENTION! " + charName + " has used an action with an undefined ki cost. Have them manually decrement.");
+        return;
+    } else if (cost > +kiCurrent) {
+        wizardSays(charName + ", you lack the necessary ki to use that.");
+        return;
+    }
+
+    kiAttr.set("current", kiCurrent - cost);
+    debugLog("decrementing " + kiAttr.get("name") + " for " + charName + " by " + cost);
+    return;
 }
 
 
@@ -247,19 +273,8 @@ function useClassAction(charName, actionNum, msg) {
 
     // Ki stuff
     if (kiActions.hasOwnProperty(actionName.toLowerCase())) {
-        var kiAttr = findAttrByName(character.id, "classactionresource20"); // hardcoded for Hunter - FIXME
-        var kiCurrent = kiAttr.get("current");
         cost = kiActions[actionName.toLowerCase()];
-        if (cost === undefined) {
-            debugLog("ATTENTION! " + charName + " has used an action with an undefined ki cost. Have them manually decrement.");
-            return;
-        } else if (cost > +kiCurrent) {
-            wizardSays(charName + ", you lack the necessary ki to use that.");
-            return;
-        }
-
-        kiAttr.set("current", kiCurrent - cost);
-        debugLog("decrementing " + kiAttr.get("name") + " for " + charName + " by " + cost);
+        useKi(character, cost);
         return;
     }
 
