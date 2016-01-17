@@ -87,29 +87,6 @@ var MarchingOrder = (function() {
     
     
     /**
-     * Tries to parse an API command argument as a compass direction.
-     * @param {String} msgTxt
-     * @return {String} The compass direction, or null if it couldn't be parsed.
-     */
-    var _parseDirection = function(msgTxt) {
-        if(msgTxt.indexOf("north") !== -1) {
-            return "north";
-        }
-        else if(msgTxt.indexOf("south") !== -1) {
-            return "south";
-        }
-        else if(msgTxt.indexOf("west") !== -1) {
-            return "west";
-        }
-        else if(msgTxt.indexOf("east") !== -1) {
-            return "east";
-        }
-        else {
-            return null;
-        }
-    };
-    
-    /**
      * Returns a list of the tokens selected by the player.
      * @param {Msg} msg
      * @return {Graphic[]}
@@ -222,9 +199,9 @@ var MarchingOrder = (function() {
         follower.prevTop = follower.get("top");
         follower.prevRotation = follower.get("rotation")
         
-        follower.set("left",leader.prevLeft);
-        follower.set("top",leader.prevTop);
-        follower.set("rotation", leader.prevRotation);     
+        follower.set("left",leader.left);
+        follower.set("top",leader.top);
+//        follower.set("rotation", leader.prevRotation);     
     };
     
     
@@ -234,16 +211,36 @@ var MarchingOrder = (function() {
      */
     on("chat:message", function(msg) {
         if(_msgStartsWith(msg, '!follow')) {
-            var arg = _getCmdArg(msg);
-            var tokens = _getSelectedTokens(msg);
-            var direction = _parseDirection(arg);
-            
-            if(direction)
-                _cmdFollowDirection(tokens, direction);
-            else if(arg)
-                _cmdFollowNamedToken(tokens, arg);
-            else
-                _replyHowToMessage(playerName);
+            var curPageID = Campaign().get("playerpageid");
+            var tokensByName = {};
+            var tokens = findObjs({
+                _pageid: curPageID,
+                _type: "graphic"
+            });
+
+            _.each(tokens, function(token) {
+                var name = token.get("name");
+                if (name !== "") {
+                    tokensByName[name] = token;
+                }
+            });
+
+            for (var name in tokensByName) {
+                if (name.indexOf("Camera ") === 0) {
+                    targetName = name.substr(7);
+                    log(targetName);
+                    if (targetName in tokensByName) {
+                        setMarchingOrder([tokensByName[targetName], tokensByName[name]]);
+                    }
+                }
+            }
+//            var arg = _getCmdArg(msg);
+//            var tokens = _getSelectedTokens(msg);
+//            
+//            if(arg)
+//                _cmdFollowNamedToken(tokens, arg);
+//            else
+//                _replyHowToMessage(playerName);
         }
     });
 
@@ -257,6 +254,9 @@ var MarchingOrder = (function() {
         leader.prevLeft = prev["left"];
         leader.prevTop = prev["top"];
         leader.prevRotation = prev["rotation"];
+
+        leader.left = obj.get("left");
+        leader.top = obj.get("top");
        
         // Only move the followers if there was a change in either the leader's 
         // left or top attributes.
