@@ -211,29 +211,7 @@ var MarchingOrder = (function() {
      */
     on("chat:message", function(msg) {
         if(_msgStartsWith(msg, '!follow')) {
-            var curPageID = Campaign().get("playerpageid");
-            var tokensByName = {};
-            var tokens = findObjs({
-                _pageid: curPageID,
-                _type: "graphic"
-            });
-
-            _.each(tokens, function(token) {
-                var name = token.get("name");
-                if (name !== "") {
-                    tokensByName[name] = token;
-                }
-            });
-
-            for (var name in tokensByName) {
-                if (name.indexOf("Camera ") === 0) {
-                    targetName = name.substr(7);
-                    log(targetName);
-                    if (targetName in tokensByName) {
-                        setMarchingOrder([tokensByName[targetName], tokensByName[name]]);
-                    }
-                }
-            }
+            setupFollow();
 //            var arg = _getCmdArg(msg);
 //            var tokens = _getSelectedTokens(msg);
 //            
@@ -243,6 +221,36 @@ var MarchingOrder = (function() {
 //                _replyHowToMessage(playerName);
         }
     });
+
+    on("change:campaign:playerpageid", function(obj, prev) {
+        setupFollow();
+    });
+
+    var setupFollow = function() {
+        var curPageID = Campaign().get("playerpageid");
+        var tokensByName = {};
+        var tokens = findObjs({
+            _pageid: curPageID,
+            _type: "graphic"
+        });
+
+        _.each(tokens, function(token) {
+            var name = token.get("name");
+            if (name !== "") {
+                tokensByName[name] = token;
+            }
+        });
+
+        for (var name in tokensByName) {
+            if (name.indexOf("Camera ") === 0) {
+                targetName = name.substr(7);
+                log(targetName);
+                if (targetName in tokensByName) {
+                    setMarchingOrder([tokensByName[targetName], tokensByName[name]]);
+                }
+            }
+        }
+    }
 
 
     /** 
