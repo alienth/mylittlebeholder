@@ -166,7 +166,7 @@ var MarchingOrder = (function() {
             var leader = tokens[i];
             var follower = tokens[i+1];
             
-            sendChat("", follower.get("name") + " is following " + leader.get("name"));
+            sendChat("", "/w gm " +  follower.get("name") + " is following " + leader.get("name"));
             follow(leader, follower);
         }
     };
