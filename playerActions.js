@@ -123,6 +123,10 @@ function spellCast(msg) {
                 useKi(character, 1);
                 return;
             }
+            if (titleCheck[1] === "Scorching Ray") {
+                debugLog("ATTENTION! " + charName + " cast scorching ray. Have them manually decrement spell slots.");
+                return;
+            }
         }
         useSpellSlot(charName, spellLevel, castLevel);
     }
