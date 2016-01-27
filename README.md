@@ -46,3 +46,29 @@
 ## Add Reckless Attack status check
 
 ## Append to tokenByChar/charByToken when a new char is added to the page.
+
+
+## Cleric spell book implementation thoughts.
+
+    Have the DM create a specially named page 'spell book'.
+
+    When API sees this page, initializes it with the following:
+        Desired width, height.
+        Disable grid.
+        Add map layer of a 'spell book.'
+        Top-right: an area describing the spell you've selected.
+        Bottom-right: List of spells.
+            Spells are graphic icons which are controllable by the player viewing the page.
+        Left page: Spells you currently have prepared.
+        Bottom left: Max you can prepare, and number you have prepared.
+        Mid-left: Always prepared.
+        Above spell book: Character name who visited it.
+
+        Opening the spellbook will cause the left side to be auto-populated with the spells currently
+        have prepared.
+
+        Adding or removing spells on the left will cause the spellbook to sync to your charsheet spellbook.
+
+        Repeating IDs of the spell items should be based upon the name of the spell.
+
+        Vitaal should have a chat command he can use to navigate back and forth from the spellbook.
