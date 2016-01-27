@@ -21,6 +21,9 @@ on("chat:message", function(msg) {
         if (msg.content.substr(0, 5) === "!rest") {
             restCommand(msg);
         }
+        if (msg.content.substr(0, 11) === "!clear-wild") {
+            wildMagicIcon(1);
+        }
 });
 
 on("change:graphic:represents", function(obj) {
@@ -114,6 +117,7 @@ function spellCast(msg) {
     if (charName && spellLevel > 0) {
         if (charName === "Dyrbaet") {
             debugLog("ATTENTION! Dyrbaet just cast a lvl " + spellLevel + " spell. Have her roll 1d20 for Wild Magic chance.");
+            wildMagicIcon();
         }
         var titleRe = /{{title=(.*?)}}/;
         var titleCheck = titleRe.exec(msg.content);
@@ -575,4 +579,43 @@ function charNameFromRoll (msg) {
     if (nameCheck) {
         return nameCheck[1];
     }
+}
+
+function wildMagicIcon (remove) {
+    var token = findObjs({
+        _pageid: Campaign().get("playerpageid"),
+        _type: "graphic",
+        name: "Dyrbaet"});
+
+    if(token.length < 1) {
+        return;
+    }
+
+    var dyrbaet = token[0];
+
+    var token = findObjs({
+    _pageid: Campaign().get("playerpageid"),
+    _type: "graphic",
+    name: "wild-magic-aura"});
+
+    if(token.length > 0) {
+        if (remove === 1) {
+            token[0].remove();
+            return;
+        }
+        log("wild-magic token already exists");
+        return;
+    }
+
+    createObj("graphic", {
+        name: "wild-magic-aura",
+        pageid: Campaign().get("playerpageid"),
+        imgsrc: "https://s3.amazonaws.com/files.d20.io/images/642812/YwEa-jyRrrox48aw8IdsrA/thumb.png?1360584955",
+        left: dyrbaet.get("left"),
+        top: dyrbaet.get("top"),
+        layer: 'gmlayer',
+        width: 200,
+        height: 200,
+    });
+
 }
