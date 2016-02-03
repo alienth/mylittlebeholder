@@ -24,6 +24,9 @@ on("chat:message", function(msg) {
         if (msg.content.substr(0, 11) === "!clear-wild") {
             wildMagicIcon(1);
         }
+        if (msg.content.substr(0, 14) === "!shaped-vision") {
+            shaped.getSelectedToken(msg, shaped.setTokenVision);
+        }
 });
 
 on("change:graphic:represents", function(obj) {
