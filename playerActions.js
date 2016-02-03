@@ -393,8 +393,8 @@ function getPlayerCharacters() {
 }
 
 function restCommand(msg) {
-    if (msg.who !== "alienth (GM)") {
-        log("Non-gm tried to rest. Ignoring." + msg.who);
+    if (!playerIsGM(msg.playerid)) {
+        debugLog("Non-GM tried to issue rest command. Ignoring.");
         return;
     }
     args = msg.content.split(/\s+/);
