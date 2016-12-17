@@ -275,7 +275,7 @@ var MarchingOrder = (function() {
        
         // Only move the followers if there was a change in either the leader's 
         // left or top attributes.
-        if(leader.get("left") != leader.prevLeft || leader.get("top") != leader.prevTop) {
+        if(leader.get("left") != leader.prevLeft || leader.get("top") != leader.prevTop || leader.get("left") != leader.follower.get("left") || leader.get("top") != leader.follower.get("top")) {
        
             // We stepped out of line. Stop following the guy in front of us.
             if(leader.leader) {
