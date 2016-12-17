@@ -25,17 +25,17 @@ var MarchingOrder = (function() {
         if(!leader || !follower)
             return;
         
-        // unbind all of follower's following links.
-        unfollow(follower);
+        // // unbind all of follower's following links.
+        // unfollow(follower);
         
-        var prevFollower = leader.follower;
-        follower.leader = leader;
-        follower.follower = prevFollower;
+        // var prevFollower = leader.follower;
+        // follower.leader = leader;
+        // follower.follower = prevFollower;
         
         leader.follower = follower;
-        if(prevFollower) {
-            prevFollower.leader = follower;
-        }
+        // if(prevFollower) {
+        //     prevFollower.leader = follower;
+        // }
     };
 
 
@@ -237,16 +237,20 @@ var MarchingOrder = (function() {
         _.each(tokens, function(token) {
             var name = token.get("name");
             if (name !== "") {
-                tokensByName[name] = token;
+                if (!(name in tokensByName)) {
+                    tokensByName[name] = [];
+                }
+                tokensByName[name].push(token);
             }
         });
 
         for (var name in tokensByName) {
-            if (name.indexOf("Camera ") === 0) {
-                targetName = name.substr(7);
-                log(targetName);
-                if (targetName in tokensByName) {
-                    setMarchingOrder([tokensByName[targetName], tokensByName[name]]);
+            var cameraName = "Camera " + name;
+            if (cameraName in tokensByName) {
+                log(name);
+                var cameraToken = tokensByName[cameraName][0];
+                for (var token in tokensByName[name]) {
+                    setMarchingOrder([tokensByName[name][token], cameraToken]);
                 }
             }
         }
