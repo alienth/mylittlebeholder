@@ -262,6 +262,9 @@ var MarchingOrder = (function() {
      * leader tokens move! 
      */
     on("change:graphic", function(obj, prev) {
+        if (obj.get("layer") === "gmlayer") {
+            return;
+        }
         var leader = obj;
         leader.prevLeft = prev["left"];
         leader.prevTop = prev["top"];
